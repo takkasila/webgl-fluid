@@ -57,8 +57,8 @@ function initWebGL()
 
 function initShaders()
 {
-    var vertexShader = getShader(gl, "shader-vs")
-    var fragmentShader = getShader(gl, "shader-fs")
+    var vertexShader = getShader("shader-vs", gl.VERTEX_SHADER)
+    var fragmentShader = getShader("shader-fs", gl.FRAGMENT_SHADER)
 
     shaderProgram = gl.createProgram()
     gl.attachShader(shaderProgram, vertexShader)
@@ -74,7 +74,7 @@ function initShaders()
     gl.enableVertexAttribArray(vertexPositionAttribute)
 }
 
-function getShader(gl, id, type)
+function getShader(id, type)
 {
     var shaderScript, theSource, currentChild, shader
 
@@ -113,18 +113,23 @@ function initBuffer()
     [
         -1.0, -1.0, 0.0
         , 1.0, -1.0, 0.0
-        , 0.0, 1.0, 0.0
+        , 1.0, 1.0, 0.0
+        , -1.0, -1.0, 0.0
+        , 1.0, 1.0, 0.0
+        , -1.0, 1.0, 0.0
     ]
     vertexBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertex_buffer_data), gl.STATIC_DRAW)
+
+    u_screenSize_location = gl.getUniformLocation(shaderProgram, "screenSize")
 }
 
 function drawScene()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
+    gl.uniform2i(u_screenSize_location, gl.viewportWidth, gl.viewportHeight)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0)
-    gl.drawArrays(gl.TRIANGLES, 0, 3)
+    gl.drawArrays(gl.TRIANGLES, 0, 6)
 }

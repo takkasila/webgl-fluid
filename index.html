@@ -13,9 +13,11 @@
     }
     </script>
     <script id = "shader-fs" type = "x-shader/x-fragment">
+    uniform ivec2 screenSize;
+
     void main()
     {
-        gl_FragColor = vec4(gl_FragCoord.x/800.0, gl_FragCoord.y/600.0, 1.0, 1.0);
+        gl_FragColor = vec4(gl_FragCoord.x/float(screenSize.x), gl_FragCoord.y/float(screenSize.y), 1.0, 1.0);
     }
     </script>
     <script id = "mainGL" src = "webgl.js" type = "text/javascript">
