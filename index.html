@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>
         2DFluid JosStam1999
     </title>
@@ -14,10 +15,16 @@
     </script>
     <script id = "shader-fs" type = "x-shader/x-fragment">
     uniform ivec2 screenSize;
+    uniform ivec2 cellCount;
+    uniform sampler2D u_density_tbo_tex;
 
     void main()
     {
-        gl_FragColor = vec4(gl_FragCoord.x/float(screenSize.x), gl_FragCoord.y/float(screenSize.y), 1.0, 1.0);
+        vec2 cellSize = vec2(screenSize)/vec2(cellCount.x+2, cellCount.y+2);
+        float shade = texture2D(u_density_tbo_tex
+            , gl_FragCoord.xy / vec2(float(screenSize.y) - cellSize.y, float(screenSize.y) - cellSize.y)
+            ).r;
+    	gl_FragColor = vec4(vec3(shade), 1);
     }
     </script>
     <script id = "fluid_quantity" src = "fluid_quantity.js" type = "text/javascript">
@@ -28,7 +35,7 @@
     </script>
 </head>
 <body onload="webGLStart()">
-    <canvas id="glCanvas" width="800" height="600" style="
+    <canvas id="glCanvas" width="800" height="800" style="
             padding: 0;
             margin: auto;
             display: block;
