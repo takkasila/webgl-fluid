@@ -1,6 +1,6 @@
 var canvas
 var gl
-var msecPerFrame = 1000.0/60.0
+var msecPerFrame = 1000.0/30.0
 var cell_x = 100
 var cell_y = 100
 
@@ -10,7 +10,7 @@ function webGLStart() {
     initWebGL()
     initShaders()
     initBuffer()
-    drawScene()
+    setInterval(drawScene, msecPerFrame);
 }
 
 function initWebGL()
