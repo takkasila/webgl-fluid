@@ -5,8 +5,7 @@ var cell_x = 100
 var cell_y = 100
 
 function webGLStart() {
-    fluidQuantity = new FluidQuantity(cell_x, cell_y, 1/cell_x)
-    fluidQuantity.addSource(0.0, 1, 0.0, 1, 0.5)
+    fluid = new FluidSolver(cell_x, cell_y, 0.00001)
     initWebGL()
     initShaders()
     initBuffer()
@@ -115,18 +114,34 @@ function initBuffer()
 
     u_density_texture = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, u_density_texture)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, (cell_x+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluidQuantity.data_prev))
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, (cell_x+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluid.dense.data))
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 }
 
 function drawScene()
 {
+    //Update fluid
+    // fluid.add_flow(0.45, 0.55, 0.45, 0.55, -1, -1)
+    fluid.add_flow(0.48, 0.52, 0, 0.03, 1, 0, 1)
+    // fluid.add_flow(0.97, 1, 0.48, 0.52, 1, -1, 0)
+    // fluid.add_flow(0.0, 0.1, 0.4, 0.7, 1, 0)
+    // fluid.add_flow(0.4, 0.7, 0.0, 0.1, 0, 1)
+    // fluid.add_flow(0.9, 1.0, 0.4, 0.7, -1, 0)
+    fluid.update(0.05)
+
+    //Render
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.uniform2i(u_screenSize_location, gl.viewportWidth, gl.viewportHeight)
     gl.uniform2i(u_cellCount_loaction, cell_x, cell_y)
     gl.bindTexture(gl.TEXTURE_2D, u_density_texture)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0)
+
+    //Texture Buffer
+    gl.bindTexture(gl.TEXTURE_2D, u_density_texture)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, (cell_x+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluid.dense.data))
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.drawArrays(gl.TRIANGLES, 0, 6)
 }

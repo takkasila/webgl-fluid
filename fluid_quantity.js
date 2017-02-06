@@ -14,7 +14,7 @@ class FluidQuantity
         this.data.fill(0)
     }
 
-    addSource(x_begin, x_end, y_begin, y_end, value)
+    add_source(x_begin, x_end, y_begin, y_end, value)
     {
         var ix_begin = x_begin*this.width + 1
         var ix_end = x_end*this.width + 1
@@ -25,6 +25,5 @@ class FluidQuantity
         for(var i=ix_begin; i<=ix_end; i++)
             for(var j=iy_begin; j<=iy_end; j++)
                 this.data_prev[i+j*(this.width+2)] = value
-        console.log(this.data_prev);
     }
 }
