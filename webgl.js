@@ -6,6 +6,7 @@ var cell_y = 100
 
 function webGLStart() {
     fluid = new FluidSolver(cell_x, cell_y, 0.00001)
+
     initWebGL()
     initShaders()
     initBuffer()
@@ -122,12 +123,8 @@ function initBuffer()
 function drawScene()
 {
     //Update fluid
-    // fluid.add_flow(0.45, 0.55, 0.45, 0.55, -1, -1)
+    // TODO: Check border bug
     fluid.add_flow(0.48, 0.52, 0, 0.03, 1, 0, 1)
-    // fluid.add_flow(0.97, 1, 0.48, 0.52, 1, -1, 0)
-    // fluid.add_flow(0.0, 0.1, 0.4, 0.7, 1, 0)
-    // fluid.add_flow(0.4, 0.7, 0.0, 0.1, 0, 1)
-    // fluid.add_flow(0.9, 1.0, 0.4, 0.7, -1, 0)
     fluid.update(0.05)
 
     //Render

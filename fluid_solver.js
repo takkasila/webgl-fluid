@@ -68,9 +68,9 @@ class FluidSolver
 				if (y < 0.5) y = 0.5
 				if (y > this.height + 0.5) y = this.height + 0.5
 				//Find four closest neighbor
-				i0 = Math.floor(x)
+				i0 = Math.round(x)
 				i1 = i0 + 1
-				j0 = Math.floor(y)
+				j0 = Math.round(y)
 				j1 = j0 + 1
 				//Interpolate four closest neighbor
 				data[this.AT(i, j)] =
@@ -132,17 +132,17 @@ class FluidSolver
     set_boundary(data, u_cond, v_cond)
     {
         //Edge
-		var coef_u = u_cond == true ? -1 : 1;
-		var coef_v = v_cond == true ? -1 : 1;
+		var coef_u = u_cond == true ? -1 : 1
+		var coef_v = v_cond == true ? -1 : 1
 		for (var i = 1; i <= this.width; i++)
 		{
-			data[this.AT(i, 0)] = data[this.AT(i, 1)] * coef_v;
-			data[this.AT(i, this.height + 1)] = data[this.AT(i, this.height)] * coef_v;
+			data[this.AT(i, 0)] = data[this.AT(i, 1)] * coef_v
+			data[this.AT(i, this.height + 1)] = data[this.AT(i, this.height)] * coef_v
 		}
 		for (var j = 1; j <= this.height; j++)
 		{
-			data[this.AT(0, j)] = data[this.AT(1, j)] * coef_u;
-			data[this.AT(this.width + 1, j)] = data[this.AT(this.width, j)] * coef_u;
+			data[this.AT(0, j)] = data[this.AT(1, j)] * coef_u
+			data[this.AT(this.width + 1, j)] = data[this.AT(this.width, j)] * coef_u
 		}
 		//Corner
 		data[this.AT(0, 0)] = (data[this.AT(0, 1)] + data[this.AT(1, 0)]) / 2;
@@ -172,6 +172,7 @@ class FluidSolver
 
     lerp(a, b, amount)
     {
-        return a + (b-a) * Math.min( Math.max(amount, 1), 0)
+        return a + (b-a) * Math.min( Math.max(amount, 0), 1)
     }
+
 }
