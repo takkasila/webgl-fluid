@@ -5,28 +5,39 @@
     <title>
         2DFluid JosStam1999
     </title>
-    <script id = "shader-vs" type = "x-shader/x-vertex">
-    attribute vec3 pos;
+    <script id = "shader-vs" type = "x-shader/x-vertex">#version 300 es
+    in vec3 pos;
 
     void main()
     {
         gl_Position = vec4(pos, 1.0);
     }
     </script>
-    <script id = "shader-fs" type = "x-shader/x-fragment">
+    <script id = "shader-fs" type = "x-shader/x-fragment">#version 300 es
     precision mediump float;
+    precision mediump sampler3D;
+
     uniform ivec2 screenSize;
     uniform ivec2 cellCount;
-    uniform sampler2D u_density_tbo_tex;
+    uniform sampler3D u_density_tbo_tex;
 
+    out vec4 fragColor;
     void main()
     {
-        vec2 cellSize = vec2(screenSize)/vec2(cellCount.x+2, cellCount.y+2);
-        float shade = texture2D(u_density_tbo_tex
-            , gl_FragCoord.xy / vec2(float(screenSize.x) - cellSize.x, float(screenSize.y) - cellSize.y)
+        float shade = 0.0;
+        for(float i=0.0; i<1.0; i+=0.1)
+        {
+            shade += texture(
+                u_density_tbo_tex
+                , vec3(
+                    gl_FragCoord.x / (float(screenSize.x))
+                    , gl_FragCoord.y / (float(screenSize.y))
+                    , i
+                ) 
             ).r;
-
-    	gl_FragColor = vec4(vec3(shade), 1);
+        }
+        
+    	fragColor = vec4(vec3(0, shade, 0), 1);
     }
     </script>
     <script id = "fluid_quantity" src = "fluid_quantity.js" type = "text/javascript">
@@ -37,7 +48,7 @@
     </script>
 </head>
 <body onload="webGLStart()">
-    <canvas id="glCanvas" width="800" height="800" style="
+    <canvas id="glCanvas" width="500" height="500" style="
             padding: 0;
             margin: auto;
             display: block;

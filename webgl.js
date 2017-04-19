@@ -1,11 +1,12 @@
 var canvas
 var gl
 var msecPerFrame = 1000.0/30.0
-var cell_x = 100
-var cell_y = 100
+var cell_x = 30
+var cell_y = 30
+var cell_z = 30
 
 function webGLStart() {
-    fluid = new FluidSolver(cell_x, cell_y, 0.00001)
+    fluid = new FluidSolver(cell_x, cell_z, cell_y, 0.00001)
 
     initWebGL()
     initShaders()
@@ -24,12 +25,6 @@ function initWebGL()
         gl.viewportHeight = canvas.height;
         var extensions = gl.getSupportedExtensions()
         gl.getExtension('EXT_color_buffer_float')
-
-        // console.log(gl)
-        // console.log(extensions)
-        // console.log(gl.getParameter(gl.VERSION));
-        // console.log(gl.getParameter(gl.SHADING_LANGUAGE_VERSION));
-        // console.log(gl.getParameter(gl.VENDOR));
 
         gl.clearColor(1.0, 0.0, 0.0, 1.0)
         gl.clearDepth(1.0)
@@ -113,32 +108,37 @@ function initBuffer()
 
     u_cellCount_loaction = gl.getUniformLocation(shaderProgram, "cellCount")
 
+    u_density_texture_location = gl.getUniformLocation(shaderProgram, "u_density_tbo_tex")
     u_density_texture = gl.createTexture()
-    gl.bindTexture(gl.TEXTURE_2D, u_density_texture)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, (cell_x+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluid.dense.data))
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.bindTexture(gl.TEXTURE_3D, u_density_texture)
+    gl.texImage3D(gl.TEXTURE_3D, 0, gl.R32F, (cell_x+2), (cell_z+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluid.dense.data))
+    gl.texParameterf(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameterf(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameterf(gl.TEXTURE_3D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameterf(gl.TEXTURE_3D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameterf(gl.TEXTURE_3D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
 }
 
 function drawScene()
 {
-    //Update fluid
-    // TODO: Check border bug
-    fluid.add_flow(0.48, 0.52, 0, 0.03, 1, 0, 1)
+    console.log("updating")
+    fluid.add_flow(0.45, 0.55, 0.45, 0.55, 0.45, 0.45, 1, 1, 1, 1)
     fluid.update(0.05)
 
     //Render
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    
     gl.uniform2i(u_screenSize_location, gl.viewportWidth, gl.viewportHeight)
-    gl.uniform2i(u_cellCount_loaction, cell_x, cell_y)
-    gl.bindTexture(gl.TEXTURE_2D, u_density_texture)
+    gl.uniform2i(u_cellCount_loaction, cell_x, cell_z)
+
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0)
 
     //Texture Buffer
-    gl.bindTexture(gl.TEXTURE_2D, u_density_texture)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, (cell_x+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluid.dense.data))
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.activeTexture(gl.TEXTURE0)
+    gl.uniform1i(u_density_texture_location, 0)
+    gl.bindTexture(gl.TEXTURE_3D, u_density_texture)
+    gl.texImage3D(gl.TEXTURE_3D, 0, gl.R32F, (cell_x+2), (cell_z+2), (cell_y+2), 0, gl.RED, gl.FLOAT, new Float32Array(fluid.dense.data))
+    
     gl.drawArrays(gl.TRIANGLES, 0, 6)
 }
